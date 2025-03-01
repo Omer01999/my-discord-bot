@@ -1,33 +1,44 @@
-require('dotenv').config(); // .env dosyasını yükle
-const { Client, GatewayIntentBits } = require('discord.js');
+from flask import Flask, request
+import threading
+import discord
+from discord.ext import commands
 
-// Yeni bir bot istemcisi oluştur
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent, // Mesaj içeriğini okumak için gerekli
-  ],
-});
+# Flask uygulamasını oluştur
+app = Flask(__name__)
 
-// Bot başlatıldığında çalışacak kod
-client.once('ready', () => {
-  console.log(`Bot ${client.user.tag} olarak giriş yaptı!`);
-});
+# Discord botunu oluştur
+intents = discord.Intents.default()
+intents.message_content = True  # Mesaj içeriğini okumak için gerekli
+bot = commands.Bot(command_prefix="/", intents=intents)
 
-// /ip komutunu dinleme
-client.on('messageCreate', (message) => {
-  if (message.content === '/ip') {
-    message.reply('Server Yaxın Bir Vaxtda Açılacaqdır');
-  }
-});
+# Bot başlatıldığında çalışacak kod
+@bot.event
+async def on_ready():
+    print(f'Bot {bot.user.name} olarak giriş yaptı!')
 
-// Ping komutunu dinleme
-client.on('messageCreate', (message) => {
-  if (message.content === '/ping') {
-    message.reply('Pong!');
-  }
-});
+# /ip komutunu dinleme
+@bot.command()
+async def ip(ctx):
+    await ctx.send('Server Yaxın Bir Vaxtda Açılacaqdır')
 
-// Bot token'ı ile giriş yap
-client.login(process.env.BOT_TOKEN);
+# /ping komutunu dinleme
+@bot.command()
+async def ping(ctx):
+    await ctx.send('Pong!')
+
+# Flask endpoint'i
+@app.route('/')
+def home():
+    return "Flask ile Discord Botu Entegrasyonu"
+
+# Flask endpoint'i ile botu başlatma
+@app.route('/start-bot')
+def start_bot():
+    # Botu ayrı bir thread'de başlat
+    bot_thread = threading.Thread(target=bot.run, args=("YOUR_BOT_TOKEN",))
+    bot_thread.start()
+    return "Bot başlatıldı!"
+
+# Flask uygulamasını çalıştır
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
