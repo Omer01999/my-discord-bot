@@ -2,6 +2,7 @@ from flask import Flask, request
 import threading
 import discord
 from discord.ext import commands
+import os
 
 # Flask uygulamasını oluştur
 app = Flask(__name__)
@@ -35,10 +36,11 @@ def home():
 @app.route('/start-bot')
 def start_bot():
     # Botu ayrı bir thread'de başlat
-    bot_thread = threading.Thread(target=bot.run, args=("YOUR_BOT_TOKEN",))
+    bot_thread = threading.Thread(target=bot.run, args=(os.getenv('BOT_TOKEN'),))
     bot_thread.start()
     return "Bot başlatıldı!"
 
 # Flask uygulamasını çalıştır
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))  # Render'da PORT değişkenini kullan
+    app.run(host='0.0.0.0', port=port)
