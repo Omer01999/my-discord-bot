@@ -22,5 +22,12 @@ client.on('messageCreate', (message) => {
   }
 });
 
+// Ping komutunu dinleme
+client.on('messageCreate', (message) => {
+  if (message.content === '/ping') {
+    message.reply('Pong!');
+  }
+});
+
 // Bot token'ı ile giriş yap
 client.login(process.env.BOT_TOKEN);
